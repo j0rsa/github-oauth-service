@@ -43,7 +43,7 @@ This is a simple service to authenticate users via Github OAuth and use it as an
     cargo build --release
 
 ## Build release in docker and prepare an image
-    docker build -t j0rsa/jwt-auth .
+    docker build -t j0rsa/github-oauth-service .
     
 ref: https://shaneutt.com/blog/rust-fast-small-docker-image-builds/
 
@@ -54,4 +54,4 @@ ref: https://medium.com/@gdiener/how-to-build-a-smaller-docker-image-76779e18d48
 ## Inspect image filesystem
     docker run --rm -it <image name or id> sh
 ## Test run
-    docker run --rm -it jwt-auth
+    docker run --rm -it github-oauth-service
