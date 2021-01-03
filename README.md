@@ -30,10 +30,10 @@ This is a simple service to authenticate users via Github OAuth and use it as an
 | JWT_EXP_DAYS | 30 | exp (expiration time): Time in days after which the JWT expires |
 | JWT_NBF_DAYS | 0 | nbf (not before time): Time in days before which the JWT must not be accepted for processing |
 | JWT_LEEWAY_SEC | 0 | leeway (in seconds) to the `exp`, `iat` and `nbf` validation to  account for clock skew |
-| GH_SCOPE | "user:read,user:email" | Github Scope to request |
 | **GH_CLIENT_ID** | "" | Github oAuth App client id |
 | **GH_CLIENT_SECRET** | "" | Github oAuth App client secret | 
 | **GH_CODE_REDIRECT** | "" | Redirect page after login |
+| GH_SCOPE | "user:read,user:email" | Github Scope to request |
 
 *Bold variables are required to specify 
 
