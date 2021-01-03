@@ -18,7 +18,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/auth/login").route(web::get().to(token::redirect_to_login)))
             .service(web::resource("/auth/token").route(web::post().to(token::get_token)))
             .service(web::resource("/auth/refresh").route(web::post().to(token::refresh)))
-            .service(web::resource("/auth/check").route(web::post().to(token::check)))
+            .service(web::resource("/auth/check").route(web::get().to(token::check)))
     )
         .bind(format!("{}:{}", &address, &port))?
         .run()
