@@ -21,7 +21,13 @@ pub struct Claims {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct NewTokenResponse {
-    pub token: String
+    pub id: i64,
+    pub login: String,
+    pub name: String,
+    pub email: Option<String>,
+    pub avatar_url: Option<String>,
+    pub token: String,
+    pub oauth_provider: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -45,4 +51,7 @@ pub struct GhTokenResponse {
 pub struct User {
     pub id: i64,
     pub login: String,
+    pub name: String,
+    pub email: Option<String>,
+    pub avatar_url: String,
 }

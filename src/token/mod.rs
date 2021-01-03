@@ -2,6 +2,8 @@ use actix_web::{HttpRequest, HttpResponse, web, http};
 
 use models::*;
 use reqwest::*;
+use crate::token::internal::get_claims;
+
 mod internal;
 
 pub mod models;
@@ -39,24 +41,36 @@ pub async fn get_token(request: web::Json<TokenRequest>) -> HttpResponse {
         Ok(text) => {
             match serde_urlencoded::from_str::<GhTokenResponse>(&text) {
                 Ok(token_response) => token_response,
-                _ => return HttpResponse::InternalServerError().body("Unable to parse access token response")
+                _ => return HttpResponse::InternalServerError().body(format!("Unable to parse access token response: {}", text))
             }
         },
         _ => return HttpResponse::BadRequest().body("Unable to get the access token text")
     };
     debug!("Received an access token {:?}", token_response);
-    let user = match user_info(&token_response).await {
+    let user = match user_info(&token_response.access_token).await {
         Ok(value) => value,
-        Err(e) => return HttpResponse::BadRequest().body(format!("Unable to get user information {}", e))
+        Err(e) => return HttpResponse::BadRequest().body(format!("Unable to get user information {}, token: {}", e, token_response.access_token))
     };
-    let token = internal::generate_token(user.id.to_string(),user.login, token_response.access_token);
-    HttpResponse::Ok().json(NewTokenResponse { token })
+    let token = internal::generate_token((&user.id).to_string(),(&user.login).clone(), token_response.access_token);
+    HttpResponse::Ok().json(user_token(&user, &token))
 }
 
-async fn user_info(token: &GhTokenResponse) -> Result<User> {
+fn user_token(user: &User, token: &String) -> NewTokenResponse {
+    NewTokenResponse {
+        id: user.id.clone(),
+        login: user.login.clone(),
+        name: user.name.clone(),
+        email: user.email.clone(),
+        avatar_url: Some(user.avatar_url.clone()),
+        token: token.clone(),
+        oauth_provider: "Github".to_string(),
+    }
+}
+
+async fn user_info(token: &String) -> Result<User> {
     reqwest::Client::new()
         .get("https://api.github.com/user")
-        .header(http::header::AUTHORIZATION, format!("Bearer {}", token.access_token))
+        .header(http::header::AUTHORIZATION, format!("Bearer {}", token))
         .header(http::header::USER_AGENT, "gh_auth_module")
         .send()
         .await?
@@ -67,10 +81,13 @@ async fn user_info(token: &GhTokenResponse) -> Result<User> {
 pub async fn refresh(request: web::Json<RefreshTokenRequest>) -> HttpResponse {
     match internal::refresh_token(&request.token) {
         Ok(token) => {
-            let new_token = NewTokenResponse { token };
-            HttpResponse::Ok().json(new_token)
+            let claims = get_claims(&token).unwrap();
+            match user_info(&claims.github_token).await {
+                Ok(user) => HttpResponse::Ok().json(user_token(&user, &token)),
+                _ => HttpResponse::BadRequest().body("unable to get user info")
+            }
         }
-        _ => HttpResponse::Unauthorized().body("")
+        _ => HttpResponse::Unauthorized().body("unable to refresh token")
     }
 
 }

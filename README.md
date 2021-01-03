@@ -10,13 +10,13 @@ This is a simple service to authenticate users via Github OAuth and use it as an
 [![CodeFactor](https://www.codefactor.io/repository/github/j0rsa/github-oauth-service/badge/main)](https://www.codefactor.io/repository/github/j0rsa/github-oauth-service/overview/main)
 
 ## Endpoints
-| Method | URL | Description |
-| ------:| --- | ----------- |
-| `GET` | `/health` | Healthcheck  which returns Code 200|
-| `GET` | `/auth/login` | Redirect to login page with required scopes for provided client id |
-| `POST` | `/auth/token` | Get JWT token by passing user code `{ "code": "<code>"}` after auth on https://github.com/login/oauth/authorize?scope=user%3Aread,user%3Aemail&client_id=... |
-| `POST` | `/auth/refresh` | Refresh token with a new one by passing the old valid one `{ "token": "eyJhbGciOiJIUz..." }` |
-| `POST` | `/auth/check` | Checks the token and returns code 200 with Headers: `X-Auth-Id` with user id, `X-Auth-User` with user name and `X-Github-Token` with github oauth user token|
+| Should be protected | Method |     URL         | Description |
+|:-------------------:| ------:| --------------- | ----------- |
+|                     | `GET`  | `/health`       | Healthcheck  which returns Code 200 |
+|                     | `GET`  | `/auth/login`   | Redirect to login page with required scopes for provided client id |
+|                     | `POST` | `/auth/token`   | Get JWT token by passing user code `{ "code": "<code>"}` after auth on https://github.com/login/oauth/authorize?scope=user%3Aread,user%3Aemail&client_id=... |
+|  *                  | `POST` | `/auth/refresh` | Refresh token with a new one by passing the old valid one `{ "token": "eyJhbGciOiJIUz..." }` |
+|  *                  | `POST` | `/auth/check`   | Checks the token and returns code 200 with Headers: `X-Auth-Id` with user id, `X-Auth-User` with user name and `X-Github-Token` with github oauth user token |
 
 ## Environment variables
 | Variable | Default value | Description |
