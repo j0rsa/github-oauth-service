@@ -44,7 +44,7 @@ pub async fn get_token(request: web::Json<TokenRequest>) -> HttpResponse {
                 Ok(token_response) => token_response,
                 _ => return HttpResponse::InternalServerError().body(format!("Unable to parse access token response: {}", text))
             }
-        },
+        }
         _ => return HttpResponse::BadRequest().body("Unable to get the access token text")
     };
     debug!("Received an access token {:?}", token_response);
@@ -52,7 +52,7 @@ pub async fn get_token(request: web::Json<TokenRequest>) -> HttpResponse {
         Ok(value) => value,
         Err(e) => return HttpResponse::BadRequest().body(format!("Unable to get user information {}, token: {}", e, token_response.access_token))
     };
-    let token = internal::generate_token((&user.id).to_string(),(&user.login).clone(), token_response.access_token);
+    let token = internal::generate_token((&user.id).to_string(), (&user.login).clone(), token_response.access_token);
     HttpResponse::Ok().json(user_token(&user, &token))
 }
 
@@ -86,7 +86,7 @@ pub async fn refresh(req: HttpRequest) -> HttpResponse {
             _ => None
         })
         .and_then(|auth| internal::get_bearer_token(auth.to_string()))
-        .and_then(|token| match internal::refresh_token(&token){
+        .and_then(|token| match internal::refresh_token(&token) {
             Ok(v) => Some(v),
             _ => None
         });
@@ -100,7 +100,6 @@ pub async fn refresh(req: HttpRequest) -> HttpResponse {
         }
         _ => HttpResponse::Unauthorized().body("unable to refresh token")
     }
-
 }
 
 pub async fn check(req: HttpRequest) -> HttpResponse {
@@ -123,10 +122,11 @@ fn check_auth_value(auth: String) -> HttpResponse {
             match internal::get_claims(&bearer) {
                 Ok(claims) => {
                     HttpResponse::Ok()
-                    .header("X-Auth-Id", claims.sub)
-                    .header("X-Auth-User", claims.name)
-                    .header("X-OAuth-Token", claims.oauth_token)
-                    .body("")}
+                        .header("X-Auth-Id", claims.sub)
+                        .header("X-Auth-User", claims.name)
+                        .header("X-OAuth-Token", claims.oauth_token)
+                        .body("")
+                }
                 Err(e) => HttpResponse::Unauthorized().body(format!("Token is invalid: {}", e.to_string()))
             }
         }
