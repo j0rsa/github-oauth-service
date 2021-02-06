@@ -1,0 +1,78 @@
+@startuml
+
+autonumber
+
+===== Get login code ==
+User -> Service: GET: /auth/login
+Service --> User: redirect to Github
+User -> Github: /login/oauth/authorize?clientId=...
+Github -> Github: authenticate
+Github --> User: http://<website url>/?code=...
+... within 10 min ...
+===== Exchange code to token ==
+User -> Service: POST: /auth/token\n exchange code into token with body
+note right
+{
+    "code": "..."
+}
+end note
+Service -> Github: POST: /login/oauth/access_token?...&code=...
+Github --> Service: token
+Service -> Github: GET: /user
+Github --> Service: User info
+Service --> User: JWT with claims
+note right
+<code>
+{
+    iis: ...,
+    aud: ...,
+    sub: <user id>,
+    iat: <current TS>,
+    exp: <expiration TS>,
+    nbf: <not before TS>,
+    jti: <token id>,
+    name: <user name>,
+    oauth_provider: "github",
+    oauth_token: <github token>, //non-expiring
+}
+</code>
+end note
+
+===== Refresh token ==
+User -> Service: POST: /auth/refresh\nwith <b>Authorization</b> header
+Service -> Service: validate JWT
+Service -> Github: GET: /user
+Github --> Service: User info
+Service --> User: JWT with claims
+note right
+<code>
+{
+    iis: ...,
+    aud: ...,
+    sub: <user id>,
+    iat: <current TS>,
+    exp: <expiration TS>,
+    nbf: <not before TS>,
+    jti: <token id>,
+    name: <user name>,
+    oauth_provider: "github",
+    oauth_token: <github token>, //non-expiring
+}
+</code>
+end note
+
+===== Check token ==
+User -> Service: GET: /auth/check\nwith <b>Authorization</b> header
+Service -> Service: validate JWT
+alt Valid token
+    Service --> User: 200[OK] response with headers
+    note right
+        X-Auth-Id: <user id>
+        X-Auth-User: <user name>
+        X-OAuth-Token: <github token>
+    end note
+else Invalid token
+    Service --> User: 401[Unauthorized] response
+end
+
+@enduml

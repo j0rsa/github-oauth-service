@@ -16,7 +16,7 @@ pub struct Claims {
     pub name: String,
     // comma separated list of scopes
     pub oauth_provider: String,
-    pub github_token: String,
+    pub oauth_token: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -33,11 +33,6 @@ pub struct NewTokenResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TokenRequest {
     pub code: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct RefreshTokenRequest {
-    pub token: String
 }
 
 #[derive(Serialize, Deserialize, Debug)]

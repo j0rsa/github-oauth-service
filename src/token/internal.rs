@@ -32,7 +32,7 @@ fn generate_token_with_secret(sub: String, name: String, token: String, secret: 
         jti: Uuid::new_v4().to_string(),
         name,
         oauth_provider: "github".to_string(),
-        github_token: token,
+        oauth_token: token,
     };
     encode(&Header::default(), &claims, secret.as_ref())
         .expect("Unable to encode claims")
@@ -44,7 +44,7 @@ pub fn refresh_token(token: &str) -> jsonwebtoken::errors::Result<String> {
 
 fn refresh_token_with_secret(token: &str, secret: &String) -> jsonwebtoken::errors::Result<String> {
     get_claims_with_secret(token, secret)
-        .map(|claims| generate_token_with_secret(claims.sub, claims.name, claims.github_token, secret))
+        .map(|claims| generate_token_with_secret(claims.sub, claims.name, claims.oauth_token, secret))
 }
 
 pub fn get_claims(token: &str) -> jsonwebtoken::errors::Result<Claims> {
@@ -115,7 +115,7 @@ mod tests {
         let claims = get_claims_with_secret(&token, &secret).unwrap();
         assert_eq!(claims.sub, id);
         assert_eq!(claims.name, name);
-        assert_eq!(claims.github_token, token);
+        assert_eq!(claims.oauth_token, token);
     }
 
     #[test]
@@ -132,7 +132,7 @@ mod tests {
         let refreshed_claims = get_claims_with_secret(&refreshed_token, &secret).unwrap();
         assert_eq!(refreshed_claims.sub, id);
         assert_eq!(refreshed_claims.name, name);
-        assert_eq!(claims.github_token, token);
+        assert_eq!(claims.oauth_token, token);
         assert!(refreshed_claims.iat > claims.iat)
     }
 }

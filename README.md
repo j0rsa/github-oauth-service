@@ -9,6 +9,9 @@ This is a simple service to authenticate users via Github OAuth and use it as an
 
 [![CodeFactor](https://www.codefactor.io/repository/github/j0rsa/github-oauth-service/badge/main)](https://www.codefactor.io/repository/github/j0rsa/github-oauth-service/overview/main)
 
+## Flow
+![Flow diagram](doc/flow.png)
+
 ## Endpoints
 | Method |     URL         | Description |
 | ------:| --------------- | ----------- |

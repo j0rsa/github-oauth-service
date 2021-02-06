@@ -3,6 +3,7 @@ use actix_web::{HttpRequest, HttpResponse, web, http};
 use models::*;
 use reqwest::*;
 use crate::token::internal::get_claims;
+use actix_web::http::header::ToStrError;
 
 mod internal;
 
@@ -78,11 +79,21 @@ async fn user_info(token: &String) -> Result<User> {
         .await
 }
 
-pub async fn refresh(request: web::Json<RefreshTokenRequest>) -> HttpResponse {
-    match internal::refresh_token(&request.token) {
+pub async fn refresh(req: HttpRequest) -> HttpResponse {
+    let new_token = req.headers().get(http::header::AUTHORIZATION)
+        .and_then(|header_value| match header_value.to_str() {
+            Ok(v) => Some(v),
+            _ => None
+        })
+        .and_then(|auth| internal::get_bearer_token(auth.to_string()))
+        .and_then(|token| match internal::refresh_token(&token){
+            Ok(v) => Some(v),
+            _ => None
+        });
+    match new_token {
         Ok(token) => {
             let claims = get_claims(&token).unwrap();
-            match user_info(&claims.github_token).await {
+            match user_info(&claims.oauth_token).await {
                 Ok(user) => HttpResponse::Ok().json(user_token(&user, &token)),
                 _ => HttpResponse::BadRequest().body("unable to get user info")
             }
@@ -114,7 +125,7 @@ fn check_auth_value(auth: String) -> HttpResponse {
                     HttpResponse::Ok()
                     .header("X-Auth-Id", claims.sub)
                     .header("X-Auth-User", claims.name)
-                    .header("X-Github-Token", claims.github_token)
+                    .header("X-OAuth-Token", claims.oauth_token)
                     .body("")}
                 Err(e) => HttpResponse::Unauthorized().body(format!("Token is invalid: {}", e.to_string()))
             }
