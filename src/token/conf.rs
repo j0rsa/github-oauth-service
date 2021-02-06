@@ -4,6 +4,7 @@ use std::str::FromStr;
 pub fn env_iss() -> String {
     env::var("JWT_ISS").unwrap_or("".to_string())
 }
+
 pub fn env_aud() -> String {
     env::var("JWT_AUD").unwrap_or("".to_string())
 }

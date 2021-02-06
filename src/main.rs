@@ -1,8 +1,10 @@
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
 
 use actix_web::{App, HttpServer, web};
 use env_logger;
 use std::env;
+
 mod health;
 mod token;
 
@@ -12,7 +14,7 @@ async fn main() -> std::io::Result<()> {
     let address = env::var("BIND_ADDRESS").unwrap_or("0.0.0.0".to_string());
     let port = env::var("BIND_PORT").unwrap_or("8080".to_string());
 
-    HttpServer::new( move ||
+    HttpServer::new(move ||
         App::new()
             .service(web::resource("/health").route(web::get().to(health::ok)))
             .service(web::resource("/auth/login").route(web::get().to(token::redirect_to_login)))

@@ -32,7 +32,7 @@ fn generate_token_with_secret(sub: String, name: String, token: String, secret: 
         jti: Uuid::new_v4().to_string(),
         name,
         oauth_provider: "github".to_string(),
-        github_token: token
+        github_token: token,
     };
     encode(&Header::default(), &claims, secret.as_ref())
         .expect("Unable to encode claims")
@@ -44,7 +44,7 @@ pub fn refresh_token(token: &str) -> jsonwebtoken::errors::Result<String> {
 
 fn refresh_token_with_secret(token: &str, secret: &String) -> jsonwebtoken::errors::Result<String> {
     get_claims_with_secret(token, secret)
-        .map(|claims| generate_token_with_secret(claims.sub, claims.name, claims.github_token, secret) )
+        .map(|claims| generate_token_with_secret(claims.sub, claims.name, claims.github_token, secret))
 }
 
 pub fn get_claims(token: &str) -> jsonwebtoken::errors::Result<Claims> {
@@ -98,7 +98,7 @@ mod tests {
 
     #[test]
     fn test_get_claims() {
-        let token= "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIiLCJzdWIiOiIxMjM0NTY3ODkwIiwiYXVkIjoiIiwiZXhwIjoxNTgyODQyODUzMzEyLCJuYmYiOjE1ODAyNTA4NTMzMTIsImlhdCI6MTU4MDI1MDg1MzMxMiwianRpIjoiZDEwM2FiM2QtZmM1My00OTM2LThkZjQtM2FkNTdkNmI1YjNmIiwibmFtZSI6IjEyM3Rlc3QifQ.xa57RMHUD3sTnu561IsSedgd-j627GrrKMInQt_zATk";
+        let token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIiLCJzdWIiOiIxMjM0NTY3ODkwIiwiYXVkIjoiIiwiZXhwIjoxNTgyODQyODUzMzEyLCJuYmYiOjE1ODAyNTA4NTMzMTIsImlhdCI6MTU4MDI1MDg1MzMxMiwianRpIjoiZDEwM2FiM2QtZmM1My00OTM2LThkZjQtM2FkNTdkNmI1YjNmIiwibmFtZSI6IjEyM3Rlc3QifQ.xa57RMHUD3sTnu561IsSedgd-j627GrrKMInQt_zATk";
         let secret = "test".to_string();
         let claims = get_claims_with_secret(&token.to_string(), &secret).unwrap();
         assert_eq!(claims.sub, "1234567890");
