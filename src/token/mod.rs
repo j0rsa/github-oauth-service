@@ -3,7 +3,6 @@ use actix_web::{HttpRequest, HttpResponse, web, http};
 use models::*;
 use reqwest::*;
 use crate::token::internal::get_claims;
-use actix_web::http::header::ToStrError;
 
 mod internal;
 
@@ -91,7 +90,7 @@ pub async fn refresh(req: HttpRequest) -> HttpResponse {
             _ => None
         });
     match new_token {
-        Ok(token) => {
+        Some(token) => {
             let claims = get_claims(&token).unwrap();
             match user_info(&claims.oauth_token).await {
                 Ok(user) => HttpResponse::Ok().json(user_token(&user, &token)),
