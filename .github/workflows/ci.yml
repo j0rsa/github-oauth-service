@@ -1,10 +1,6 @@
-name: PR Builder
+name: CI
 
-on:
-  pull_request:
-    types: [opened, synchronize, labeled]
-    branches:
-      - master
+on: [push]
 
 jobs:
   build_and_test:
@@ -18,4 +14,4 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-#          args: --release --all-features
+          args: --release --all-features
