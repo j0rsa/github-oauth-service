@@ -4,10 +4,10 @@ use jwt::{decode, encode, Header, Validation};
 use uuid::Uuid;
 use token::models::Claims;
 use crate::token;
-use self::jwt::Algorithm;
-use serde_json::Value;
+use self::jwt::{Algorithm, EncodingKey, DecodingKey};
 use crate::token::conf;
 use chrono::Utc;
+use std::collections::HashSet;
 
 fn now() -> i64 {
     Utc::now().timestamp()
@@ -34,7 +34,7 @@ fn generate_token_with_secret(sub: String, name: String, token: String, secret: 
         oauth_provider: "github".to_string(),
         oauth_token: token,
     };
-    encode(&Header::default(), &claims, secret.as_ref())
+    encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_ref()))
         .expect("Unable to encode claims")
 }
 
@@ -52,11 +52,12 @@ pub fn get_claims(token: &str) -> jsonwebtoken::errors::Result<Claims> {
 }
 
 fn get_claims_with_secret(token: &str, secret: &String) -> jsonwebtoken::errors::Result<Claims> {
-    decode::<Claims>(&token, secret.as_ref(), &jwt_validation())
+    decode::<Claims>(&token, &DecodingKey::from_secret(secret.as_ref()), &jwt_validation())
         .map(|d| d.claims)
 }
 
 fn jwt_validation() -> Validation {
+    let aud: HashSet<String> = vec!(conf::env_aud()).into_iter().collect();
     Validation {
         leeway: conf::env_leeway(),
 
@@ -65,7 +66,7 @@ fn jwt_validation() -> Validation {
 
         iss: Some(conf::env_iss()),
         sub: None,
-        aud: Some(Value::String(conf::env_aud())),
+        aud: Some(aud),
 
         algorithms: vec![Algorithm::HS256],
     }
