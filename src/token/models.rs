@@ -14,6 +14,7 @@ pub struct Claims {
     // jwt id
     pub jti: String,
     pub name: String,
+    pub email: Option<String>,
     // comma separated list of scopes
     pub oauth_provider: String,
     pub oauth_token: String,

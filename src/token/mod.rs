@@ -51,7 +51,12 @@ pub async fn get_token(request: web::Json<TokenRequest>) -> HttpResponse {
         Ok(value) => value,
         Err(e) => return HttpResponse::BadRequest().body(format!("Unable to get user information {}, token: {}", e, token_response.access_token))
     };
-    let token = internal::generate_token((&user.id).to_string(), (&user.login).clone(), token_response.access_token);
+    let token = internal::generate_token(
+        (&user.id).to_string(),
+        (&user.login).clone(),
+        (&user.email).clone(),
+        token_response.access_token
+    );
     HttpResponse::Ok().json(user_token(&user, &token))
 }
 

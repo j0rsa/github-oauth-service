@@ -17,11 +17,11 @@ fn now_plus_days(days: i64) -> i64 {
     now() + (days * 24 * 60 * 60)
 }
 
-pub fn generate_token(user_id: String, user_name: String, github_token: String) -> String {
-    generate_token_with_secret(user_id, user_name, github_token, &conf::env_token_secret())
+pub fn generate_token(user_id: String, user_name: String, email: Option<String>, github_token: String) -> String {
+    generate_token_with_secret(user_id, user_name, email, github_token, &conf::env_token_secret())
 }
 
-fn generate_token_with_secret(sub: String, name: String, token: String, secret: &String) -> String {
+fn generate_token_with_secret(sub: String, name: String, email: Option<String>, token: String, secret: &String) -> String {
     let claims = Claims {
         iss: conf::env_iss(),
         sub,
@@ -31,6 +31,7 @@ fn generate_token_with_secret(sub: String, name: String, token: String, secret: 
         nbf: now_plus_days(conf::env_nbf_days()),
         jti: Uuid::new_v4().to_string(),
         name,
+        email,
         oauth_provider: "github".to_string(),
         oauth_token: token,
     };
@@ -44,7 +45,7 @@ pub fn refresh_token(token: &str) -> jsonwebtoken::errors::Result<String> {
 
 fn refresh_token_with_secret(token: &str, secret: &String) -> jsonwebtoken::errors::Result<String> {
     get_claims_with_secret(token, secret)
-        .map(|claims| generate_token_with_secret(claims.sub, claims.name, claims.oauth_token, secret))
+        .map(|claims| generate_token_with_secret(claims.sub, claims.name, claims.email, claims.oauth_token, secret))
 }
 
 pub fn get_claims(token: &str) -> jsonwebtoken::errors::Result<Claims> {
