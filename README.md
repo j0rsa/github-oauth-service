@@ -11,6 +11,7 @@ This is a simple service to authenticate users via Github OAuth and use it as an
 
 ## Flow
 ![Flow diagram](doc/flow.png)
+[ref](https://docs.github.com/en/developers/apps/authorizing-oauth-apps)
 
 ## Register
 1. Start creating [new oauth app](https://github.com/settings/applications/new)
