@@ -8,7 +8,7 @@ use std::env;
 mod health;
 mod token;
 
-#[actix_rt::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
     let address = env::var("BIND_ADDRESS").unwrap_or("0.0.0.0".to_string());
